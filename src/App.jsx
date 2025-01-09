@@ -1,11 +1,11 @@
 import html2canvas from "html2canvas";
 import React, { useState, useRef } from "react";
-import "./App.css"
+import "./App.css";
 
 const App = () => {
   const [url, setUrl] = useState("");
   const [show, setShow] = useState(false);
-  const qrRef = useRef(null); // Create a ref for the QR code image
+  const qrRef = useRef(null); // Create a ref for the QR code container
 
   const handleQr = (e) => {
     e.preventDefault();
@@ -14,7 +14,9 @@ const App = () => {
 
   const handleDownload = () => {
     if (qrRef.current) {
-      html2canvas(qrRef.current).then((canvas) => {
+      html2canvas(qrRef.current, {
+        useCORS: true, // Allow cross-origin images
+      }).then((canvas) => {
         const link = document.createElement("a");
         link.href = canvas.toDataURL("image/png");
         link.download = "qr-code.png";
@@ -48,18 +50,17 @@ const App = () => {
       {show && (
         <div className="row justify-content-center mt-4">
           <div className="col-md-4 text-center">
-            <img
-              ref={qrRef} // Attach the ref to the QR code image
-              src={`https://quickchart.io/qr?text=${url}`}
-              alt="QR Code"
-              className="img-fluid border p-2"
-            />
+            <div ref={qrRef} className="qr-code-container">
+              <img
+                src={`https://quickchart.io/qr?text=${encodeURIComponent(url)}`}
+                alt="QR Code"
+                className="img-fluid border p-2"
+                crossOrigin="anonymous" // Set crossorigin attribute
+              />
+            </div>
           </div>
           <div className="col-12 text-center mt-3">
-            <button
-              className="btn btn-success"
-              onClick={handleDownload}
-            >
+            <button className="btn btn-success" onClick={handleDownload}>
               Download QR Code
             </button>
           </div>
